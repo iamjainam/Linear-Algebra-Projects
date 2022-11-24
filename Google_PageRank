@@ -1,0 +1,764 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "ir",
+      "display_name": "R"
+    },
+    "language_info": {
+      "name": "R"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/jainam-shah1/Linear-Algebra/blob/main/Google_PageRank\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#<center>Google PageRank </center>\n",
+        "\n",
+        "---\n"
+      ],
+      "metadata": {
+        "id": "tTIxko-c5Deo"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### `INTRODUCTION`\n",
+        "PageRank is the algorithm to analyse of the links  and  where it assigns a numerical weightage to each links based on the importance.The PageRank algorithm outputs a probability distribution used to represent the likelihood that a person randomly clicking on links will arrive at any particular page.\n",
+        "\n",
+        "*  web pages with the higher pagerank are most likely to appear at the top of the google search result\n",
+        "\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "UyP4CF7HpvN_"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## <center> Graph 1 </center>\n",
+        "---"
+      ],
+      "metadata": {
+        "id": "vzj3iW4qKZt5"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#transition matrix of A"
+      ],
+      "metadata": {
+        "id": "n4NW2NV_3Z95"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 160
+        },
+        "id": "sRxOGE7G5ATc",
+        "outputId": "b6ff272a-7029-4a67-b111-c3ca5148b6e3"
+      },
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.0000000</td><td>0.0</td><td>1</td><td>0.5</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.0</td><td>0</td><td>0.0</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.5</td><td>0</td><td>0.5</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.5</td><td>0</td><td>0.0</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 4 × 4 of type dbl\n\n| 0.0000000 | 0.0 | 1 | 0.5 |\n| 0.3333333 | 0.0 | 0 | 0.0 |\n| 0.3333333 | 0.5 | 0 | 0.5 |\n| 0.3333333 | 0.5 | 0 | 0.0 |\n\n",
+            "text/latex": "A matrix: 4 × 4 of type dbl\n\\begin{tabular}{llll}\n\t 0.0000000 & 0.0 & 1 & 0.5\\\\\n\t 0.3333333 & 0.0 & 0 & 0.0\\\\\n\t 0.3333333 & 0.5 & 0 & 0.5\\\\\n\t 0.3333333 & 0.5 & 0 & 0.0\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]      [,2] [,3] [,4]\n",
+              "[1,] 0.0000000 0.0  1    0.5 \n",
+              "[2,] 0.3333333 0.0  0    0.0 \n",
+              "[3,] 0.3333333 0.5  0    0.5 \n",
+              "[4,] 0.3333333 0.5  0    0.0 "
+            ]
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "#the directed graph is represented in the matrix form below\n",
+        "a <- matrix(c(0,1/3,1/3,1/3,0,0,1/2,1/2,1,0,0,0,1/2,0,1/2,0), nrow = 4)\n",
+        "a"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "$ G = (1-p)P + pK$"
+      ],
+      "metadata": {
+        "id": "1e7uxP3E6pr5"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "p = 0.15"
+      ],
+      "metadata": {
+        "id": "MkI4GHrP6W0B"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#the matrix form of the given directed graph\n",
+        "k <- matrix(c(1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/4), nrow = 4)\n",
+        "k"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 160
+        },
+        "id": "jelw3HPS7DOQ",
+        "outputId": "c31d15a2-7fb8-41be-f8a9-dc55953218f7"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.25</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>\n",
+              "\t<tr><td>0.25</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>\n",
+              "\t<tr><td>0.25</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>\n",
+              "\t<tr><td>0.25</td><td>0.25</td><td>0.25</td><td>0.25</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 4 × 4 of type dbl\n\n| 0.25 | 0.25 | 0.25 | 0.25 |\n| 0.25 | 0.25 | 0.25 | 0.25 |\n| 0.25 | 0.25 | 0.25 | 0.25 |\n| 0.25 | 0.25 | 0.25 | 0.25 |\n\n",
+            "text/latex": "A matrix: 4 × 4 of type dbl\n\\begin{tabular}{llll}\n\t 0.25 & 0.25 & 0.25 & 0.25\\\\\n\t 0.25 & 0.25 & 0.25 & 0.25\\\\\n\t 0.25 & 0.25 & 0.25 & 0.25\\\\\n\t 0.25 & 0.25 & 0.25 & 0.25\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1] [,2] [,3] [,4]\n",
+              "[1,] 0.25 0.25 0.25 0.25\n",
+              "[2,] 0.25 0.25 0.25 0.25\n",
+              "[3,] 0.25 0.25 0.25 0.25\n",
+              "[4,] 0.25 0.25 0.25 0.25"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "- Calculate Google matrix"
+      ],
+      "metadata": {
+        "id": "nZ82HP3zKT2I"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "G1 <- (1-p)*a + p*k\n",
+        "G1"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 160
+        },
+        "id": "t1Qjyw4G7OvI",
+        "outputId": "c0106498-cf72-46fc-fc6a-98e006f0bfe6"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 4 × 4 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.0375000</td><td>0.0375</td><td>0.8875</td><td>0.4625</td></tr>\n",
+              "\t<tr><td>0.3208333</td><td>0.0375</td><td>0.0375</td><td>0.0375</td></tr>\n",
+              "\t<tr><td>0.3208333</td><td>0.4625</td><td>0.0375</td><td>0.4625</td></tr>\n",
+              "\t<tr><td>0.3208333</td><td>0.4625</td><td>0.0375</td><td>0.0375</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 4 × 4 of type dbl\n\n| 0.0375000 | 0.0375 | 0.8875 | 0.4625 |\n| 0.3208333 | 0.0375 | 0.0375 | 0.0375 |\n| 0.3208333 | 0.4625 | 0.0375 | 0.4625 |\n| 0.3208333 | 0.4625 | 0.0375 | 0.0375 |\n\n",
+            "text/latex": "A matrix: 4 × 4 of type dbl\n\\begin{tabular}{llll}\n\t 0.0375000 & 0.0375 & 0.8875 & 0.4625\\\\\n\t 0.3208333 & 0.0375 & 0.0375 & 0.0375\\\\\n\t 0.3208333 & 0.4625 & 0.0375 & 0.4625\\\\\n\t 0.3208333 & 0.4625 & 0.0375 & 0.0375\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]      [,2]   [,3]   [,4]  \n",
+              "[1,] 0.0375000 0.0375 0.8875 0.4625\n",
+              "[2,] 0.3208333 0.0375 0.0375 0.0375\n",
+              "[3,] 0.3208333 0.4625 0.0375 0.4625\n",
+              "[4,] 0.3208333 0.4625 0.0375 0.0375"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "- The graph above doesn't have any dangling node."
+      ],
+      "metadata": {
+        "id": "NVNbwT0veBPx"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "- The graph doesn't have any disconnected node."
+      ],
+      "metadata": {
+        "id": "unIA9wXbeHZ2"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "V <- eigen(G1)\n",
+        "V"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 208
+        },
+        "id": "G92g5zyJeOk9",
+        "outputId": "2c3c52da-2b91-423c-a39e-1dacf8d686aa"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "eigen() decomposition\n",
+              "$values\n",
+              "[1]  1.0000000+0.0000000i -0.3065298+0.3493292i -0.3065298-0.3493292i\n",
+              "[4] -0.2369403+0.0000000i\n",
+              "\n",
+              "$vectors\n",
+              "             [,1]                  [,2]                  [,3]          [,4]\n",
+              "[1,] 0.6964831+0i  0.7552157+0.0000000i  0.7552157+0.0000000i  0.5064856+0i\n",
+              "[2,] 0.2682810+0i -0.3036721-0.3460725i -0.3036721+0.3460725i -0.6056557+0i\n",
+              "[3,] 0.5447780+0i -0.0931532+0.2746779i -0.0931532-0.2746779i -0.3815392+0i\n",
+              "[4,] 0.3823004+0i -0.3583904+0.0713946i -0.3583904-0.0713946i  0.4807092+0i\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "V$vectors"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 160
+        },
+        "id": "HrsgXI_jesgf",
+        "outputId": "187c6f52-3850-4db6-a698-73ce021e7da8"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 4 × 4 of type cpl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.6964831+0i</td><td> 0.7552157+0.0000000i</td><td> 0.7552157+0.0000000i</td><td> 0.5064856+0i</td></tr>\n",
+              "\t<tr><td>0.2682810+0i</td><td>-0.3036721-0.3460725i</td><td>-0.3036721+0.3460725i</td><td>-0.6056557+0i</td></tr>\n",
+              "\t<tr><td>0.5447780+0i</td><td>-0.0931532+0.2746779i</td><td>-0.0931532-0.2746779i</td><td>-0.3815392+0i</td></tr>\n",
+              "\t<tr><td>0.3823004+0i</td><td>-0.3583904+0.0713946i</td><td>-0.3583904-0.0713946i</td><td> 0.4807092+0i</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 4 × 4 of type cpl\n\n| 0.6964831+0i |  0.7552157+0.0000000i |  0.7552157+0.0000000i |  0.5064856+0i |\n| 0.2682810+0i | -0.3036721-0.3460725i | -0.3036721+0.3460725i | -0.6056557+0i |\n| 0.5447780+0i | -0.0931532+0.2746779i | -0.0931532-0.2746779i | -0.3815392+0i |\n| 0.3823004+0i | -0.3583904+0.0713946i | -0.3583904-0.0713946i |  0.4807092+0i |\n\n",
+            "text/latex": "A matrix: 4 × 4 of type cpl\n\\begin{tabular}{llll}\n\t 0.6964831+0i &  0.7552157+0.0000000i &  0.7552157+0.0000000i &  0.5064856+0i\\\\\n\t 0.2682810+0i & -0.3036721-0.3460725i & -0.3036721+0.3460725i & -0.6056557+0i\\\\\n\t 0.5447780+0i & -0.0931532+0.2746779i & -0.0931532-0.2746779i & -0.3815392+0i\\\\\n\t 0.3823004+0i & -0.3583904+0.0713946i & -0.3583904-0.0713946i &  0.4807092+0i\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]         [,2]                  [,3]                  [,4]         \n",
+              "[1,] 0.6964831+0i  0.7552157+0.0000000i  0.7552157+0.0000000i  0.5064856+0i\n",
+              "[2,] 0.2682810+0i -0.3036721-0.3460725i -0.3036721+0.3460725i -0.6056557+0i\n",
+              "[3,] 0.5447780+0i -0.0931532+0.2746779i -0.0931532-0.2746779i -0.3815392+0i\n",
+              "[4,] 0.3823004+0i -0.3583904+0.0713946i -0.3583904-0.0713946i  0.4807092+0i"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "V$vectors[,1]/sum(V$vectors[,1])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "QfPEkzNBev-i",
+        "outputId": "e3810e18-5466-4603-c67a-383b92262a7e"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>0.368150677047603+0i</li><li>0.141809358496821+0i</li><li>0.287961628597607+0i</li><li>0.20207833585797+0i</li></ol>\n"
+            ],
+            "text/markdown": "1. 0.368150677047603+0i\n2. 0.141809358496821+0i\n3. 0.287961628597607+0i\n4. 0.20207833585797+0i\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 0.368150677047603+0i\n\\item 0.141809358496821+0i\n\\item 0.287961628597607+0i\n\\item 0.20207833585797+0i\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1] 0.3681507+0i 0.1418094+0i 0.2879616+0i 0.2020783+0i"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "-- According to the output of Page rank - Page 1 is with the highest rank."
+      ],
+      "metadata": {
+        "id": "zYlTUx6FxWMw"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## <center>Graph 2 </center>\n",
+        "---"
+      ],
+      "metadata": {
+        "id": "pnFB2br_MLSG"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "b <- matrix(c(0,1/3,1/3,1/3,0,0,0,0,1/2,1/2,1,0,0,0,0,0,1/2,1/2,0,0,0,0,0,0,1), nrow = 5)\n",
+        "b"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 191
+        },
+        "id": "g3WdYuouKd67",
+        "outputId": "f6dd8857-106e-454a-af68-3d97990134d9"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 5 × 5 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.0000000</td><td>0.0</td><td>1</td><td>0.0</td><td>0</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.0</td><td>0</td><td>0.5</td><td>0</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.0</td><td>0</td><td>0.5</td><td>0</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.5</td><td>0</td><td>0.0</td><td>0</td></tr>\n",
+              "\t<tr><td>0.0000000</td><td>0.5</td><td>0</td><td>0.0</td><td>1</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 5 × 5 of type dbl\n\n| 0.0000000 | 0.0 | 1 | 0.0 | 0 |\n| 0.3333333 | 0.0 | 0 | 0.5 | 0 |\n| 0.3333333 | 0.0 | 0 | 0.5 | 0 |\n| 0.3333333 | 0.5 | 0 | 0.0 | 0 |\n| 0.0000000 | 0.5 | 0 | 0.0 | 1 |\n\n",
+            "text/latex": "A matrix: 5 × 5 of type dbl\n\\begin{tabular}{lllll}\n\t 0.0000000 & 0.0 & 1 & 0.0 & 0\\\\\n\t 0.3333333 & 0.0 & 0 & 0.5 & 0\\\\\n\t 0.3333333 & 0.0 & 0 & 0.5 & 0\\\\\n\t 0.3333333 & 0.5 & 0 & 0.0 & 0\\\\\n\t 0.0000000 & 0.5 & 0 & 0.0 & 1\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]      [,2] [,3] [,4] [,5]\n",
+              "[1,] 0.0000000 0.0  1    0.0  0   \n",
+              "[2,] 0.3333333 0.0  0    0.5  0   \n",
+              "[3,] 0.3333333 0.0  0    0.5  0   \n",
+              "[4,] 0.3333333 0.5  0    0.0  0   \n",
+              "[5,] 0.0000000 0.5  0    0.0  1   "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "b_dang <- matrix(c(0,1/3,1/3,1/3,0,0,0,0,1/2,1/2,1,0,0,0,0,0,1/2,1/2,0,0,1/5,1/5,1/5,1/5,1/5), nrow = 5)\n",
+        "b_dang"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 191
+        },
+        "id": "Mq0FsnzXMP4N",
+        "outputId": "429bb1b4-5f6f-4e91-cf0d-bbe29640ce56"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 5 × 5 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.0000000</td><td>0.0</td><td>1</td><td>0.0</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.0</td><td>0</td><td>0.5</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.0</td><td>0</td><td>0.5</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.3333333</td><td>0.5</td><td>0</td><td>0.0</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.0000000</td><td>0.5</td><td>0</td><td>0.0</td><td>0.2</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 5 × 5 of type dbl\n\n| 0.0000000 | 0.0 | 1 | 0.0 | 0.2 |\n| 0.3333333 | 0.0 | 0 | 0.5 | 0.2 |\n| 0.3333333 | 0.0 | 0 | 0.5 | 0.2 |\n| 0.3333333 | 0.5 | 0 | 0.0 | 0.2 |\n| 0.0000000 | 0.5 | 0 | 0.0 | 0.2 |\n\n",
+            "text/latex": "A matrix: 5 × 5 of type dbl\n\\begin{tabular}{lllll}\n\t 0.0000000 & 0.0 & 1 & 0.0 & 0.2\\\\\n\t 0.3333333 & 0.0 & 0 & 0.5 & 0.2\\\\\n\t 0.3333333 & 0.0 & 0 & 0.5 & 0.2\\\\\n\t 0.3333333 & 0.5 & 0 & 0.0 & 0.2\\\\\n\t 0.0000000 & 0.5 & 0 & 0.0 & 0.2\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]      [,2] [,3] [,4] [,5]\n",
+              "[1,] 0.0000000 0.0  1    0.0  0.2 \n",
+              "[2,] 0.3333333 0.0  0    0.5  0.2 \n",
+              "[3,] 0.3333333 0.0  0    0.5  0.2 \n",
+              "[4,] 0.3333333 0.5  0    0.0  0.2 \n",
+              "[5,] 0.0000000 0.5  0    0.0  0.2 "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "$ G = (1-p)P + pK$"
+      ],
+      "metadata": {
+        "id": "aWfgu3VPcQCc"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "p = 0.15"
+      ],
+      "metadata": {
+        "id": "4MF4dDmdcGi7"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "K1 <- matrix(c(1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5,1/5), nrow = 5)\n",
+        "K1"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 191
+        },
+        "id": "eIOe1yW1cRwb",
+        "outputId": "34e74213-93c7-4332-8ec2-5f641b26cba8"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 5 × 5 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 5 × 5 of type dbl\n\n| 0.2 | 0.2 | 0.2 | 0.2 | 0.2 |\n| 0.2 | 0.2 | 0.2 | 0.2 | 0.2 |\n| 0.2 | 0.2 | 0.2 | 0.2 | 0.2 |\n| 0.2 | 0.2 | 0.2 | 0.2 | 0.2 |\n| 0.2 | 0.2 | 0.2 | 0.2 | 0.2 |\n\n",
+            "text/latex": "A matrix: 5 × 5 of type dbl\n\\begin{tabular}{lllll}\n\t 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\\\\n\t 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\\\\n\t 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\\\\n\t 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\\\\n\t 0.2 & 0.2 & 0.2 & 0.2 & 0.2\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1] [,2] [,3] [,4] [,5]\n",
+              "[1,] 0.2  0.2  0.2  0.2  0.2 \n",
+              "[2,] 0.2  0.2  0.2  0.2  0.2 \n",
+              "[3,] 0.2  0.2  0.2  0.2  0.2 \n",
+              "[4,] 0.2  0.2  0.2  0.2  0.2 \n",
+              "[5,] 0.2  0.2  0.2  0.2  0.2 "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#google matrix G\n",
+        "G2 <- (1-p)*b_dang + p*K1\n",
+        "G2"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 191
+        },
+        "id": "UG2wdsslcniN",
+        "outputId": "07d9874b-139f-4d2b-9efa-a0d90d3f5c43"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 5 × 5 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>0.0300000</td><td>0.030</td><td>0.88</td><td>0.030</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.3133333</td><td>0.030</td><td>0.03</td><td>0.455</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.3133333</td><td>0.030</td><td>0.03</td><td>0.455</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.3133333</td><td>0.455</td><td>0.03</td><td>0.030</td><td>0.2</td></tr>\n",
+              "\t<tr><td>0.0300000</td><td>0.455</td><td>0.03</td><td>0.030</td><td>0.2</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 5 × 5 of type dbl\n\n| 0.0300000 | 0.030 | 0.88 | 0.030 | 0.2 |\n| 0.3133333 | 0.030 | 0.03 | 0.455 | 0.2 |\n| 0.3133333 | 0.030 | 0.03 | 0.455 | 0.2 |\n| 0.3133333 | 0.455 | 0.03 | 0.030 | 0.2 |\n| 0.0300000 | 0.455 | 0.03 | 0.030 | 0.2 |\n\n",
+            "text/latex": "A matrix: 5 × 5 of type dbl\n\\begin{tabular}{lllll}\n\t 0.0300000 & 0.030 & 0.88 & 0.030 & 0.2\\\\\n\t 0.3133333 & 0.030 & 0.03 & 0.455 & 0.2\\\\\n\t 0.3133333 & 0.030 & 0.03 & 0.455 & 0.2\\\\\n\t 0.3133333 & 0.455 & 0.03 & 0.030 & 0.2\\\\\n\t 0.0300000 & 0.455 & 0.03 & 0.030 & 0.2\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]      [,2]  [,3] [,4]  [,5]\n",
+              "[1,] 0.0300000 0.030 0.88 0.030 0.2 \n",
+              "[2,] 0.3133333 0.030 0.03 0.455 0.2 \n",
+              "[3,] 0.3133333 0.030 0.03 0.455 0.2 \n",
+              "[4,] 0.3133333 0.455 0.03 0.030 0.2 \n",
+              "[5,] 0.0300000 0.455 0.03 0.030 0.2 "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **part c**\n",
+        "- The graph has a dangling node - node 5 since it's an absorbing node."
+      ],
+      "metadata": {
+        "id": "nvNP0odhgrFy"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **part d**"
+      ],
+      "metadata": {
+        "id": "8ony9rC75Qv1"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "- The graph above has no disconnected graph."
+      ],
+      "metadata": {
+        "id": "9ikzBwOCg7UF"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## **part e**\n",
+        "completing the page rank of each page in the set"
+      ],
+      "metadata": {
+        "id": "cd21lvy45dNn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "V <- eigen(G2)\n",
+        "V"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 208
+        },
+        "id": "Vvrj95oqc7b3",
+        "outputId": "2b630086-9e1c-4d62-a3dd-13e05f1faab4"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "eigen() decomposition\n",
+              "$values\n",
+              "[1]  1.000000e+00 -4.250000e-01 -3.283472e-01  7.334716e-02 -2.081668e-17\n",
+              "\n",
+              "$vectors\n",
+              "           [,1]       [,2]       [,3]       [,4]          [,5]\n",
+              "[1,] -0.5120362 -0.7223151 -0.7436111 -0.2835064  3.403228e-16\n",
+              "[2,] -0.4611320  0.4213505  0.3463197 -0.2029132  3.429972e-01\n",
+              "[3,] -0.4611320  0.4213505  0.3463197 -0.2029132  1.714986e-01\n",
+              "[4,] -0.4611320  0.1805788  0.3463197 -0.2029132  3.429972e-01\n",
+              "[5,] -0.3160551 -0.3009646 -0.2953481  0.8922460 -8.574929e-01\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#the eigen vectors of matrix G2 are\n",
+        "V$vectors"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 191
+        },
+        "id": "xb72E4NBhEYD",
+        "outputId": "a9a12cd7-e237-4945-c997-f61cd1e59349"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A matrix: 5 × 5 of type dbl</caption>\n",
+              "<tbody>\n",
+              "\t<tr><td>-0.5120362</td><td>-0.7223151</td><td>-0.7436111</td><td>-0.2835064</td><td> 3.403228e-16</td></tr>\n",
+              "\t<tr><td>-0.4611320</td><td> 0.4213505</td><td> 0.3463197</td><td>-0.2029132</td><td> 3.429972e-01</td></tr>\n",
+              "\t<tr><td>-0.4611320</td><td> 0.4213505</td><td> 0.3463197</td><td>-0.2029132</td><td> 1.714986e-01</td></tr>\n",
+              "\t<tr><td>-0.4611320</td><td> 0.1805788</td><td> 0.3463197</td><td>-0.2029132</td><td> 3.429972e-01</td></tr>\n",
+              "\t<tr><td>-0.3160551</td><td>-0.3009646</td><td>-0.2953481</td><td> 0.8922460</td><td>-8.574929e-01</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA matrix: 5 × 5 of type dbl\n\n| -0.5120362 | -0.7223151 | -0.7436111 | -0.2835064 |  3.403228e-16 |\n| -0.4611320 |  0.4213505 |  0.3463197 | -0.2029132 |  3.429972e-01 |\n| -0.4611320 |  0.4213505 |  0.3463197 | -0.2029132 |  1.714986e-01 |\n| -0.4611320 |  0.1805788 |  0.3463197 | -0.2029132 |  3.429972e-01 |\n| -0.3160551 | -0.3009646 | -0.2953481 |  0.8922460 | -8.574929e-01 |\n\n",
+            "text/latex": "A matrix: 5 × 5 of type dbl\n\\begin{tabular}{lllll}\n\t -0.5120362 & -0.7223151 & -0.7436111 & -0.2835064 &  3.403228e-16\\\\\n\t -0.4611320 &  0.4213505 &  0.3463197 & -0.2029132 &  3.429972e-01\\\\\n\t -0.4611320 &  0.4213505 &  0.3463197 & -0.2029132 &  1.714986e-01\\\\\n\t -0.4611320 &  0.1805788 &  0.3463197 & -0.2029132 &  3.429972e-01\\\\\n\t -0.3160551 & -0.3009646 & -0.2953481 &  0.8922460 & -8.574929e-01\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "     [,1]       [,2]       [,3]       [,4]       [,5]         \n",
+              "[1,] -0.5120362 -0.7223151 -0.7436111 -0.2835064  3.403228e-16\n",
+              "[2,] -0.4611320  0.4213505  0.3463197 -0.2029132  3.429972e-01\n",
+              "[3,] -0.4611320  0.4213505  0.3463197 -0.2029132  1.714986e-01\n",
+              "[4,] -0.4611320  0.1805788  0.3463197 -0.2029132  3.429972e-01\n",
+              "[5,] -0.3160551 -0.3009646 -0.2953481  0.8922460 -8.574929e-01"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#page rank of each page are calculated using the formula below\n",
+        "V$vectors[,1]/sum(V$vectors[,1])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "9gWf_DPFhPeJ",
+        "outputId": "4a45a0d2-2c8c-406f-dd4a-1713092623de"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>0.231534764064721</li><li>0.208516688105071</li><li>0.208516688105071</li><li>0.208516688105071</li><li>0.142915171620066</li></ol>\n"
+            ],
+            "text/markdown": "1. 0.231534764064721\n2. 0.208516688105071\n3. 0.208516688105071\n4. 0.208516688105071\n5. 0.142915171620066\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 0.231534764064721\n\\item 0.208516688105071\n\\item 0.208516688105071\n\\item 0.208516688105071\n\\item 0.142915171620066\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1] 0.2315348 0.2085167 0.2085167 0.2085167 0.1429152"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "-- According to the output of Page rank - Page 1 is with the highest rank."
+      ],
+      "metadata": {
+        "id": "qMsFuDVfNjr9"
+      }
+    }
+  ]
+}
