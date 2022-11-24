@@ -1,0 +1,774 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/jainam-shah1/Linear-Algebra/blob/main/Singular_Value_Decomposition\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Singular Value Decomposition\n",
+        ">By Jainam Shah"
+      ],
+      "metadata": {
+        "id": "T-4HzEYsDeMn"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Installing necessary libraries"
+      ],
+      "metadata": {
+        "id": "1Xhh6iYSDb1D"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hM2B4nmXqVye",
+        "outputId": "ee7306e5-94b1-4ff3-c21b-19ab8726a854"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Installing package into ‘/usr/local/lib/R/site-library’\n",
+            "(as ‘lib’ is unspecified)\n",
+            "\n"
+          ]
+        }
+      ],
+      "source": [
+        "install.packages(\"pracma\", repos=\"http://R-Forge.R-project.org\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Esc_UuNQqOb6"
+      },
+      "outputs": [],
+      "source": [
+        "library(pracma)\n",
+        "library(MASS)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "nFFahhc6q28k",
+        "outputId": "e722b337-4a8a-4d77-94d4-529c3e7fa881"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Installing package into ‘/usr/local/lib/R/site-library’\n",
+            "(as ‘lib’ is unspecified)\n",
+            "\n"
+          ]
+        }
+      ],
+      "source": [
+        "\n",
+        "install.packages(\"wordspace\")\n",
+        "library(wordspace)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "3SuPkhnutGrN",
+        "outputId": "145c7992-2424-47c0-ed74-476bf9a0897d"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Installing package into ‘/usr/local/lib/R/site-library’\n",
+            "(as ‘lib’ is unspecified)\n",
+            "\n"
+          ]
+        }
+      ],
+      "source": [
+        "install.packages(\"caret\")\n",
+        "library(caret)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ARAHrm8oqyNd"
+      },
+      "source": [
+        "Importing all four dataset into individual dataframes"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "1QEi1o23kiWE",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 86
+        },
+        "outputId": "b2403bdc-1434-46e4-c0aa-e5b6f0f29f16"
+      },
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>256</li><li>1707</li></ol>\n"
+            ],
+            "text/markdown": "1. 256\n2. 1707\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 256\n\\item 1707\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1]  256 1707"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>1</li><li>1707</li></ol>\n"
+            ],
+            "text/markdown": "1. 1\n2. 1707\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 1\n\\item 1707\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1]    1 1707"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>256</li><li>2007</li></ol>\n"
+            ],
+            "text/markdown": "1. 256\n2. 2007\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 256\n\\item 2007\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1]  256 2007"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>1</li><li>2007</li></ol>\n"
+            ],
+            "text/markdown": "1. 1\n2. 2007\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 1\n\\item 2007\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1]    1 2007"
+            ]
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "df_trainoutput <- read.csv('trainOutput.csv', header = FALSE)\n",
+        "df_traininput <- read.csv('trainInput.csv', header = FALSE)\n",
+        "df_testoutput <- read.csv('testOutput.csv', header = FALSE)\n",
+        "df_testinput <- read.csv('testInput.csv', header = FALSE)\n",
+        "dim(df_traininput)\n",
+        "dim(df_trainoutput)\n",
+        "dim(df_testinput)\n",
+        "dim(df_testoutput)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "CLHIv_RvuDVI"
+      },
+      "source": [
+        ">We have to concatenate both the traininput and trainoutput dataframe using `rbind` and storing it in a dataframe\n",
+        "\n",
+        "> New dimension is 257 rows and 1707 columns."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "wu0tY49-lNK_",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "outputId": "d4644370-d8e6-4f81-8066-349f0be3fb48"
+      },
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>257</li><li>1707</li></ol>\n"
+            ],
+            "text/markdown": "1. 257\n2. 1707\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 257\n\\item 1707\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1]  257 1707"
+            ]
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "conc_input <- rbind(df_traininput, df_trainoutput)\n",
+        "dim(conc_input)\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "> We have to transpose the `conc_input` dataframe."
+      ],
+      "metadata": {
+        "id": "_8YmZH0kEyM_"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "YVQ8We-blQh_"
+      },
+      "outputs": [],
+      "source": [
+        "conc_input <- t(conc_input)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MV8gun2ClYVt"
+      },
+      "source": [
+        "###Form a matrix A for each digit, such that each row in A represents an image of that digit. (You will have 10 A’s). "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "> Convert the `testinput` dataframe in a matrix form."
+      ],
+      "metadata": {
+        "id": "e56lz99vE-kv"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "AcGsavmklS70"
+      },
+      "outputs": [],
+      "source": [
+        "df_testinput <- as.matrix(df_testinput)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "b_QabJUCloRC"
+      },
+      "outputs": [],
+      "source": [
+        "mat_A0 = conc_input[conc_input[,257]==0,1:256]\n",
+        "mat_A1 = conc_input[conc_input[,257]==1,1:256]\n",
+        "mat_A2 = conc_input[conc_input[,257]==2,1:256]\n",
+        "mat_A3 = conc_input[conc_input[,257]==3,1:256]\n",
+        "mat_A4 = conc_input[conc_input[,257]==4,1:256]\n",
+        "mat_A5 = conc_input[conc_input[,257]==5,1:256]\n",
+        "mat_A6 = conc_input[conc_input[,257]==6,1:256]\n",
+        "mat_A7 = conc_input[conc_input[,257]==7,1:256]\n",
+        "mat_A8 = conc_input[conc_input[,257]==8,1:256]\n",
+        "mat_A9 = conc_input[conc_input[,257]==9,1:256]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "IF69cRvgltrU"
+      },
+      "source": [
+        "###Determine the singular value decomposition for each A. (Right singular vectors Vi are an orthogonal basis in the image space of that digit. We will refer to the right singular vectors as “singular images.”) You should get 10 sets of singular images, one for each digit. "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "UFl8VA6dlsA_"
+      },
+      "outputs": [],
+      "source": [
+        "svd0 = svd(mat_A0)\n",
+        "svd1 = svd(mat_A1)\n",
+        "svd2 = svd(mat_A2)\n",
+        "svd3 = svd(mat_A3)\n",
+        "svd4 = svd(mat_A4)\n",
+        "svd5 = svd(mat_A5)\n",
+        "svd6 = svd(mat_A6)\n",
+        "svd7 = svd(mat_A7)\n",
+        "svd8 = svd(mat_A8)\n",
+        "svd9 = svd(mat_A9)\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "AJFjgsQppGPt"
+      },
+      "source": [
+        "We can now have the singular images for each digit."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "gY1_0WVzpGDS"
+      },
+      "outputs": [],
+      "source": [
+        "singular0 = as.matrix(svd0$v[,1:20])\n",
+        "singular1 = as.matrix(svd1$v[,1:20])\n",
+        "singular2 = as.matrix(svd2$v[,1:20])  \n",
+        "singular3 = as.matrix(svd3$v[,1:20])  \n",
+        "singular4 = as.matrix(svd4$v[,1:20])  \n",
+        "singular5 = as.matrix(svd5$v[,1:20])\n",
+        "singular6 = as.matrix(svd6$v[,1:20])\n",
+        "singular7 = as.matrix(svd7$v[,1:20])\n",
+        "singular8 = as.matrix(svd8$v[,1:20])\n",
+        "singular9 = as.matrix(svd9$v[,1:20])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "kIllnk6PpOUR"
+      },
+      "source": [
+        "###Express test images as a linear combination of the first k=20 singular images of each digit. (This is a least square problem of the form Ax=b). "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "EpN92xhCpOLZ"
+      },
+      "outputs": [],
+      "source": [
+        "lincom0 = inv(t(singular0) %*% singular0) %*% t(singular0) %*% df_testinput\n",
+        "lincom1 = inv(t(singular1) %*% singular1) %*% t(singular1) %*% df_testinput\n",
+        "lincom2 = inv(t(singular2) %*% singular2) %*% t(singular2) %*% df_testinput\n",
+        "lincom3 = inv(t(singular3) %*% singular3) %*% t(singular3) %*% df_testinput\n",
+        "lincom4 = inv(t(singular4) %*% singular4) %*% t(singular4) %*% df_testinput\n",
+        "lincom5 = inv(t(singular5) %*% singular5) %*% t(singular5) %*% df_testinput\n",
+        "lincom6 = inv(t(singular6) %*% singular6) %*% t(singular6) %*% df_testinput\n",
+        "lincom7 = inv(t(singular7) %*% singular7) %*% t(singular7) %*% df_testinput\n",
+        "lincom8 = inv(t(singular8) %*% singular8) %*% t(singular8) %*% df_testinput\n",
+        "lincom9 = inv(t(singular9) %*% singular9) %*% t(singular9) %*% df_testinput"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_L0FL0zrqpAr"
+      },
+      "source": [
+        "###Compute the distance between test images and their least square approximations. "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "LefEtOFjqsrr"
+      },
+      "outputs": [],
+      "source": [
+        "d0 = t(df_testinput) - t(singular0 %*% lc0)\n",
+        "d1 = t(df_testinput) - t(singular1 %*% lc1)\n",
+        "d2 = t(df_testinput) - t(singular2 %*% lc2)\n",
+        "d3 = t(df_testinput) - t(singular3 %*% lc3)\n",
+        "d4 = t(df_testinput) - t(singular4 %*% lc4)\n",
+        "d5 = t(df_testinput) - t(singular5 %*% lc5)\n",
+        "d6 = t(df_testinput) - t(singular6 %*% lc6)\n",
+        "d7 = t(df_testinput) - t(singular7 %*% lc7)\n",
+        "d8 = t(df_testinput) - t(singular8 %*% lc8)\n",
+        "d9 = t(df_testinput) - t(singular9 %*% lc9)\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EE7JPOUbq5p4"
+      },
+      "source": [
+        "We have to now find the error and also install the library wordspace"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Ve1jFsdls0JI"
+      },
+      "outputs": [],
+      "source": [
+        "e0 = rowNorms(as.matrix(d0), method = \"euclidean\", p = 2)\n",
+        "e1 = rowNorms(as.matrix(d1), method = \"euclidean\", p = 2)\n",
+        "e2 = rowNorms(as.matrix(d2), method = \"euclidean\", p = 2)\n",
+        "e3 = rowNorms(as.matrix(d3), method = \"euclidean\", p = 2)\n",
+        "e4 = rowNorms(as.matrix(d4), method = \"euclidean\", p = 2)\n",
+        "e5 = rowNorms(as.matrix(d5), method = \"euclidean\", p = 2)\n",
+        "e6 = rowNorms(as.matrix(d6), method = \"euclidean\", p = 2)\n",
+        "e7 = rowNorms(as.matrix(d7), method = \"euclidean\", p = 2)\n",
+        "e8 = rowNorms(as.matrix(d8), method = \"euclidean\", p = 2)\n",
+        "e9 = rowNorms(as.matrix(d9), method = \"euclidean\", p = 2)\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hQZroNUcsxPX"
+      },
+      "source": [
+        "Finding the error"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "jJ9dHdsRs4T-",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 725
+        },
+        "outputId": "94cb2f5a-cb15-4525-92e8-e587bd5abc46"
+      },
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A data.frame: 20 × 10</caption>\n",
+              "<thead>\n",
+              "\t<tr><th></th><th scope=col>e0</th><th scope=col>e1</th><th scope=col>e2</th><th scope=col>e3</th><th scope=col>e4</th><th scope=col>e5</th><th scope=col>e6</th><th scope=col>e7</th><th scope=col>e8</th><th scope=col>e9</th></tr>\n",
+              "\t<tr><th></th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><th scope=row>V1</th><td> 9.450711</td><td>10.895408</td><td>9.569496</td><td> 8.691607</td><td> 7.284899</td><td> 9.337940</td><td> 9.545622</td><td> 7.114044</td><td> 8.236318</td><td> 3.401388</td></tr>\n",
+              "\t<tr><th scope=row>V2</th><td> 7.987032</td><td>11.496614</td><td>9.112643</td><td>10.416280</td><td> 9.436814</td><td>10.232620</td><td> 5.514822</td><td>11.448302</td><td>10.653984</td><td>10.843435</td></tr>\n",
+              "\t<tr><th scope=row>V3</th><td> 8.947269</td><td>12.148701</td><td>8.665643</td><td> 4.168662</td><td>11.736596</td><td> 9.105364</td><td>10.195266</td><td> 9.879520</td><td> 7.773044</td><td> 9.382345</td></tr>\n",
+              "\t<tr><th scope=row>V4</th><td> 7.747875</td><td>11.188172</td><td>9.514209</td><td> 9.945517</td><td> 9.446872</td><td>10.272118</td><td> 7.928857</td><td>11.312533</td><td>10.776754</td><td>11.051277</td></tr>\n",
+              "\t<tr><th scope=row>V5</th><td> 8.588480</td><td>11.414212</td><td>9.804297</td><td>11.469535</td><td>10.496134</td><td>11.174644</td><td> 5.815101</td><td>11.437068</td><td>10.891941</td><td>11.893676</td></tr>\n",
+              "\t<tr><th scope=row>V6</th><td> 3.581011</td><td>11.474235</td><td>7.884316</td><td>10.103205</td><td>11.312008</td><td> 8.516164</td><td> 8.556714</td><td>10.911723</td><td>10.670079</td><td>11.776834</td></tr>\n",
+              "\t<tr><th scope=row>V7</th><td> 3.500403</td><td>11.657214</td><td>7.344438</td><td> 8.418468</td><td>10.684792</td><td> 8.568493</td><td> 8.173763</td><td> 9.239416</td><td> 8.801773</td><td> 9.217634</td></tr>\n",
+              "\t<tr><th scope=row>V8</th><td> 3.903384</td><td>11.655254</td><td>8.592899</td><td> 8.474108</td><td>10.690676</td><td> 8.133569</td><td> 7.516063</td><td>10.120198</td><td> 8.419270</td><td> 9.948246</td></tr>\n",
+              "\t<tr><th scope=row>V9</th><td> 8.222032</td><td>11.905395</td><td>9.130111</td><td>10.182423</td><td> 9.420101</td><td> 9.318434</td><td> 3.059844</td><td>11.436944</td><td> 8.937615</td><td>11.109879</td></tr>\n",
+              "\t<tr><th scope=row>V10</th><td> 8.134053</td><td> 8.722042</td><td>8.144375</td><td> 7.808162</td><td> 6.548223</td><td> 8.571951</td><td> 8.037554</td><td> 5.834232</td><td> 6.772362</td><td> 3.436013</td></tr>\n",
+              "\t<tr><th scope=row>V11</th><td> 8.524713</td><td>10.415999</td><td>9.431173</td><td> 8.780232</td><td> 9.527240</td><td> 7.579814</td><td> 3.271304</td><td>11.205966</td><td> 8.903856</td><td>10.502163</td></tr>\n",
+              "\t<tr><th scope=row>V12</th><td> 9.977934</td><td>11.043389</td><td>4.822555</td><td> 9.706148</td><td>10.000929</td><td>11.067303</td><td>10.177089</td><td>10.337096</td><td>10.681799</td><td>11.141079</td></tr>\n",
+              "\t<tr><th scope=row>V13</th><td> 7.309545</td><td>10.755568</td><td>6.696660</td><td> 6.647040</td><td>12.107406</td><td> 8.704424</td><td>10.310586</td><td>11.512148</td><td>10.543030</td><td>11.666985</td></tr>\n",
+              "\t<tr><th scope=row>V14</th><td>10.282615</td><td>10.435126</td><td>9.127514</td><td> 9.958588</td><td> 7.741412</td><td> 9.470704</td><td> 9.509110</td><td> 7.786888</td><td> 8.451192</td><td> 7.944845</td></tr>\n",
+              "\t<tr><th scope=row>V15</th><td> 7.010918</td><td>11.516318</td><td>9.520462</td><td>10.585501</td><td>10.154173</td><td> 8.473217</td><td> 9.781461</td><td> 9.988218</td><td>10.785290</td><td>10.834752</td></tr>\n",
+              "\t<tr><th scope=row>V16</th><td> 8.548656</td><td> 9.702626</td><td>9.072556</td><td> 6.029274</td><td> 8.665472</td><td> 7.362178</td><td> 9.307555</td><td> 8.525110</td><td> 7.221609</td><td> 8.281699</td></tr>\n",
+              "\t<tr><th scope=row>V17</th><td> 8.434998</td><td> 2.239679</td><td>8.295990</td><td> 8.681904</td><td> 6.147263</td><td> 8.603323</td><td> 6.606260</td><td> 8.018654</td><td> 5.950564</td><td> 7.319382</td></tr>\n",
+              "\t<tr><th scope=row>V18</th><td> 9.529732</td><td>10.646817</td><td>9.014435</td><td>11.013111</td><td> 8.925620</td><td> 9.635278</td><td> 8.530432</td><td>11.186678</td><td>10.421931</td><td>10.910942</td></tr>\n",
+              "\t<tr><th scope=row>V19</th><td> 9.874296</td><td>11.958149</td><td>9.727099</td><td> 9.946570</td><td> 8.327298</td><td>10.505131</td><td>11.068625</td><td> 7.662169</td><td> 7.440991</td><td> 5.054926</td></tr>\n",
+              "\t<tr><th scope=row>V20</th><td> 8.239734</td><td> 9.562780</td><td>9.458614</td><td> 7.978047</td><td> 8.941878</td><td> 7.145134</td><td> 3.992378</td><td>11.957092</td><td> 9.116176</td><td>11.441232</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA data.frame: 20 × 10\n\n| <!--/--> | e0 &lt;dbl&gt; | e1 &lt;dbl&gt; | e2 &lt;dbl&gt; | e3 &lt;dbl&gt; | e4 &lt;dbl&gt; | e5 &lt;dbl&gt; | e6 &lt;dbl&gt; | e7 &lt;dbl&gt; | e8 &lt;dbl&gt; | e9 &lt;dbl&gt; |\n|---|---|---|---|---|---|---|---|---|---|---|\n| V1 |  9.450711 | 10.895408 | 9.569496 |  8.691607 |  7.284899 |  9.337940 |  9.545622 |  7.114044 |  8.236318 |  3.401388 |\n| V2 |  7.987032 | 11.496614 | 9.112643 | 10.416280 |  9.436814 | 10.232620 |  5.514822 | 11.448302 | 10.653984 | 10.843435 |\n| V3 |  8.947269 | 12.148701 | 8.665643 |  4.168662 | 11.736596 |  9.105364 | 10.195266 |  9.879520 |  7.773044 |  9.382345 |\n| V4 |  7.747875 | 11.188172 | 9.514209 |  9.945517 |  9.446872 | 10.272118 |  7.928857 | 11.312533 | 10.776754 | 11.051277 |\n| V5 |  8.588480 | 11.414212 | 9.804297 | 11.469535 | 10.496134 | 11.174644 |  5.815101 | 11.437068 | 10.891941 | 11.893676 |\n| V6 |  3.581011 | 11.474235 | 7.884316 | 10.103205 | 11.312008 |  8.516164 |  8.556714 | 10.911723 | 10.670079 | 11.776834 |\n| V7 |  3.500403 | 11.657214 | 7.344438 |  8.418468 | 10.684792 |  8.568493 |  8.173763 |  9.239416 |  8.801773 |  9.217634 |\n| V8 |  3.903384 | 11.655254 | 8.592899 |  8.474108 | 10.690676 |  8.133569 |  7.516063 | 10.120198 |  8.419270 |  9.948246 |\n| V9 |  8.222032 | 11.905395 | 9.130111 | 10.182423 |  9.420101 |  9.318434 |  3.059844 | 11.436944 |  8.937615 | 11.109879 |\n| V10 |  8.134053 |  8.722042 | 8.144375 |  7.808162 |  6.548223 |  8.571951 |  8.037554 |  5.834232 |  6.772362 |  3.436013 |\n| V11 |  8.524713 | 10.415999 | 9.431173 |  8.780232 |  9.527240 |  7.579814 |  3.271304 | 11.205966 |  8.903856 | 10.502163 |\n| V12 |  9.977934 | 11.043389 | 4.822555 |  9.706148 | 10.000929 | 11.067303 | 10.177089 | 10.337096 | 10.681799 | 11.141079 |\n| V13 |  7.309545 | 10.755568 | 6.696660 |  6.647040 | 12.107406 |  8.704424 | 10.310586 | 11.512148 | 10.543030 | 11.666985 |\n| V14 | 10.282615 | 10.435126 | 9.127514 |  9.958588 |  7.741412 |  9.470704 |  9.509110 |  7.786888 |  8.451192 |  7.944845 |\n| V15 |  7.010918 | 11.516318 | 9.520462 | 10.585501 | 10.154173 |  8.473217 |  9.781461 |  9.988218 | 10.785290 | 10.834752 |\n| V16 |  8.548656 |  9.702626 | 9.072556 |  6.029274 |  8.665472 |  7.362178 |  9.307555 |  8.525110 |  7.221609 |  8.281699 |\n| V17 |  8.434998 |  2.239679 | 8.295990 |  8.681904 |  6.147263 |  8.603323 |  6.606260 |  8.018654 |  5.950564 |  7.319382 |\n| V18 |  9.529732 | 10.646817 | 9.014435 | 11.013111 |  8.925620 |  9.635278 |  8.530432 | 11.186678 | 10.421931 | 10.910942 |\n| V19 |  9.874296 | 11.958149 | 9.727099 |  9.946570 |  8.327298 | 10.505131 | 11.068625 |  7.662169 |  7.440991 |  5.054926 |\n| V20 |  8.239734 |  9.562780 | 9.458614 |  7.978047 |  8.941878 |  7.145134 |  3.992378 | 11.957092 |  9.116176 | 11.441232 |\n\n",
+            "text/latex": "A data.frame: 20 × 10\n\\begin{tabular}{r|llllllllll}\n  & e0 & e1 & e2 & e3 & e4 & e5 & e6 & e7 & e8 & e9\\\\\n  & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl> & <dbl>\\\\\n\\hline\n\tV1 &  9.450711 & 10.895408 & 9.569496 &  8.691607 &  7.284899 &  9.337940 &  9.545622 &  7.114044 &  8.236318 &  3.401388\\\\\n\tV2 &  7.987032 & 11.496614 & 9.112643 & 10.416280 &  9.436814 & 10.232620 &  5.514822 & 11.448302 & 10.653984 & 10.843435\\\\\n\tV3 &  8.947269 & 12.148701 & 8.665643 &  4.168662 & 11.736596 &  9.105364 & 10.195266 &  9.879520 &  7.773044 &  9.382345\\\\\n\tV4 &  7.747875 & 11.188172 & 9.514209 &  9.945517 &  9.446872 & 10.272118 &  7.928857 & 11.312533 & 10.776754 & 11.051277\\\\\n\tV5 &  8.588480 & 11.414212 & 9.804297 & 11.469535 & 10.496134 & 11.174644 &  5.815101 & 11.437068 & 10.891941 & 11.893676\\\\\n\tV6 &  3.581011 & 11.474235 & 7.884316 & 10.103205 & 11.312008 &  8.516164 &  8.556714 & 10.911723 & 10.670079 & 11.776834\\\\\n\tV7 &  3.500403 & 11.657214 & 7.344438 &  8.418468 & 10.684792 &  8.568493 &  8.173763 &  9.239416 &  8.801773 &  9.217634\\\\\n\tV8 &  3.903384 & 11.655254 & 8.592899 &  8.474108 & 10.690676 &  8.133569 &  7.516063 & 10.120198 &  8.419270 &  9.948246\\\\\n\tV9 &  8.222032 & 11.905395 & 9.130111 & 10.182423 &  9.420101 &  9.318434 &  3.059844 & 11.436944 &  8.937615 & 11.109879\\\\\n\tV10 &  8.134053 &  8.722042 & 8.144375 &  7.808162 &  6.548223 &  8.571951 &  8.037554 &  5.834232 &  6.772362 &  3.436013\\\\\n\tV11 &  8.524713 & 10.415999 & 9.431173 &  8.780232 &  9.527240 &  7.579814 &  3.271304 & 11.205966 &  8.903856 & 10.502163\\\\\n\tV12 &  9.977934 & 11.043389 & 4.822555 &  9.706148 & 10.000929 & 11.067303 & 10.177089 & 10.337096 & 10.681799 & 11.141079\\\\\n\tV13 &  7.309545 & 10.755568 & 6.696660 &  6.647040 & 12.107406 &  8.704424 & 10.310586 & 11.512148 & 10.543030 & 11.666985\\\\\n\tV14 & 10.282615 & 10.435126 & 9.127514 &  9.958588 &  7.741412 &  9.470704 &  9.509110 &  7.786888 &  8.451192 &  7.944845\\\\\n\tV15 &  7.010918 & 11.516318 & 9.520462 & 10.585501 & 10.154173 &  8.473217 &  9.781461 &  9.988218 & 10.785290 & 10.834752\\\\\n\tV16 &  8.548656 &  9.702626 & 9.072556 &  6.029274 &  8.665472 &  7.362178 &  9.307555 &  8.525110 &  7.221609 &  8.281699\\\\\n\tV17 &  8.434998 &  2.239679 & 8.295990 &  8.681904 &  6.147263 &  8.603323 &  6.606260 &  8.018654 &  5.950564 &  7.319382\\\\\n\tV18 &  9.529732 & 10.646817 & 9.014435 & 11.013111 &  8.925620 &  9.635278 &  8.530432 & 11.186678 & 10.421931 & 10.910942\\\\\n\tV19 &  9.874296 & 11.958149 & 9.727099 &  9.946570 &  8.327298 & 10.505131 & 11.068625 &  7.662169 &  7.440991 &  5.054926\\\\\n\tV20 &  8.239734 &  9.562780 & 9.458614 &  7.978047 &  8.941878 &  7.145134 &  3.992378 & 11.957092 &  9.116176 & 11.441232\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "    e0        e1        e2       e3        e4        e5        e6       \n",
+              "V1   9.450711 10.895408 9.569496  8.691607  7.284899  9.337940  9.545622\n",
+              "V2   7.987032 11.496614 9.112643 10.416280  9.436814 10.232620  5.514822\n",
+              "V3   8.947269 12.148701 8.665643  4.168662 11.736596  9.105364 10.195266\n",
+              "V4   7.747875 11.188172 9.514209  9.945517  9.446872 10.272118  7.928857\n",
+              "V5   8.588480 11.414212 9.804297 11.469535 10.496134 11.174644  5.815101\n",
+              "V6   3.581011 11.474235 7.884316 10.103205 11.312008  8.516164  8.556714\n",
+              "V7   3.500403 11.657214 7.344438  8.418468 10.684792  8.568493  8.173763\n",
+              "V8   3.903384 11.655254 8.592899  8.474108 10.690676  8.133569  7.516063\n",
+              "V9   8.222032 11.905395 9.130111 10.182423  9.420101  9.318434  3.059844\n",
+              "V10  8.134053  8.722042 8.144375  7.808162  6.548223  8.571951  8.037554\n",
+              "V11  8.524713 10.415999 9.431173  8.780232  9.527240  7.579814  3.271304\n",
+              "V12  9.977934 11.043389 4.822555  9.706148 10.000929 11.067303 10.177089\n",
+              "V13  7.309545 10.755568 6.696660  6.647040 12.107406  8.704424 10.310586\n",
+              "V14 10.282615 10.435126 9.127514  9.958588  7.741412  9.470704  9.509110\n",
+              "V15  7.010918 11.516318 9.520462 10.585501 10.154173  8.473217  9.781461\n",
+              "V16  8.548656  9.702626 9.072556  6.029274  8.665472  7.362178  9.307555\n",
+              "V17  8.434998  2.239679 8.295990  8.681904  6.147263  8.603323  6.606260\n",
+              "V18  9.529732 10.646817 9.014435 11.013111  8.925620  9.635278  8.530432\n",
+              "V19  9.874296 11.958149 9.727099  9.946570  8.327298 10.505131 11.068625\n",
+              "V20  8.239734  9.562780 9.458614  7.978047  8.941878  7.145134  3.992378\n",
+              "    e7        e8        e9       \n",
+              "V1   7.114044  8.236318  3.401388\n",
+              "V2  11.448302 10.653984 10.843435\n",
+              "V3   9.879520  7.773044  9.382345\n",
+              "V4  11.312533 10.776754 11.051277\n",
+              "V5  11.437068 10.891941 11.893676\n",
+              "V6  10.911723 10.670079 11.776834\n",
+              "V7   9.239416  8.801773  9.217634\n",
+              "V8  10.120198  8.419270  9.948246\n",
+              "V9  11.436944  8.937615 11.109879\n",
+              "V10  5.834232  6.772362  3.436013\n",
+              "V11 11.205966  8.903856 10.502163\n",
+              "V12 10.337096 10.681799 11.141079\n",
+              "V13 11.512148 10.543030 11.666985\n",
+              "V14  7.786888  8.451192  7.944845\n",
+              "V15  9.988218 10.785290 10.834752\n",
+              "V16  8.525110  7.221609  8.281699\n",
+              "V17  8.018654  5.950564  7.319382\n",
+              "V18 11.186678 10.421931 10.910942\n",
+              "V19  7.662169  7.440991  5.054926\n",
+              "V20 11.957092  9.116176 11.441232"
+            ]
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "error_df = as.data.frame(cbind(e0, e1, e2, e3, e4, e5, e6, e7, e8, e9))\n",
+        "head(error_df,20)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###Classify each test image to be the digit corresponding to the smallest residual.  "
+      ],
+      "metadata": {
+        "id": "fdBEHtZoHNOE"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "DlHInBGls6dS"
+      },
+      "outputs": [],
+      "source": [
+        "prediction = apply(error_df, 1, which.min) - 1\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "FI7SvMgos8Zg",
+        "outputId": "d7e055d4-1b6d-4393-8bf8-7409750bbe97"
+      },
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "93.971101145989"
+            ],
+            "text/markdown": "93.971101145989",
+            "text/latex": "93.971101145989",
+            "text/plain": [
+              "[1] 93.9711"
+            ]
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "classification_rate = sum(prediction == df_testoutput) / ncol(df_testoutput)\n",
+        "classification_rate*100"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "###Calculate the overall correct classification rate, as well as correct classification rate for each digit in a confusion matrix. "
+      ],
+      "metadata": {
+        "id": "zvoNWimVHJPl"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "J6BG9YZOtwUC",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 886
+        },
+        "outputId": "4b5dd425-b329-4ca0-8a08-4298a7f41fe7"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "Warning message in xtfrm.data.frame(x):\n",
+            "“cannot xtfrm data frames”\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "Confusion Matrix and Statistics\n",
+              "\n",
+              "          Reference\n",
+              "Prediction   0   1   2   3   4   5   6   7   8   9\n",
+              "         0 355   0   2   0   1   0   0   0   0   1\n",
+              "         1   0 259   0   0   3   0   2   0   0   0\n",
+              "         2   8   1 179   2   3   0   0   1   4   0\n",
+              "         3   1   0   4 148   1   8   0   1   2   1\n",
+              "         4   1   1   0   0 187   1   1   3   0   6\n",
+              "         5   8   1   2   4   0 140   0   0   2   3\n",
+              "         6   2   0   0   0   2   2 164   0   0   0\n",
+              "         7   0   1   1   0   3   0   0 139   0   3\n",
+              "         8   4   0   2   6   0   1   0   0 149   4\n",
+              "         9   0   1   0   1   4   0   0   4   1 166\n",
+              "\n",
+              "Overall Statistics\n",
+              "                                          \n",
+              "               Accuracy : 0.9397          \n",
+              "                 95% CI : (0.9284, 0.9497)\n",
+              "    No Information Rate : 0.1888          \n",
+              "    P-Value [Acc > NIR] : < 2.2e-16       \n",
+              "                                          \n",
+              "                  Kappa : 0.9322          \n",
+              "                                          \n",
+              " Mcnemar's Test P-Value : NA              \n",
+              "\n",
+              "Statistics by Class:\n",
+              "\n",
+              "                     Class: 0 Class: 1 Class: 2 Class: 3 Class: 4 Class: 5\n",
+              "Sensitivity            0.9367   0.9811  0.94211  0.91925  0.91667  0.92105\n",
+              "Specificity            0.9975   0.9971  0.98954  0.99025  0.99279  0.98922\n",
+              "Pos Pred Value         0.9889   0.9811  0.90404  0.89157  0.93500  0.87500\n",
+              "Neg Pred Value         0.9854   0.9971  0.99392  0.99294  0.99059  0.99350\n",
+              "Prevalence             0.1888   0.1315  0.09467  0.08022  0.10164  0.07573\n",
+              "Detection Rate         0.1769   0.1290  0.08919  0.07374  0.09317  0.06976\n",
+              "Detection Prevalence   0.1789   0.1315  0.09865  0.08271  0.09965  0.07972\n",
+              "Balanced Accuracy      0.9671   0.9891  0.96582  0.95475  0.95473  0.95514\n",
+              "                     Class: 6 Class: 7 Class: 8 Class: 9\n",
+              "Sensitivity           0.98204  0.93919  0.94304  0.90217\n",
+              "Specificity           0.99674  0.99570  0.99081  0.99397\n",
+              "Pos Pred Value        0.96471  0.94558  0.89759  0.93785\n",
+              "Neg Pred Value        0.99837  0.99516  0.99511  0.99016\n",
+              "Prevalence            0.08321  0.07374  0.07872  0.09168\n",
+              "Detection Rate        0.08171  0.06926  0.07424  0.08271\n",
+              "Detection Prevalence  0.08470  0.07324  0.08271  0.08819\n",
+              "Balanced Accuracy     0.98939  0.96744  0.96692  0.94807"
+            ]
+          },
+          "metadata": {}
+        }
+      ],
+      "source": [
+        "confusionMatrix(factor(df_testoutput), factor(prediction))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "> As per confusion matrix the **accuracy** is *93.97%*"
+      ],
+      "metadata": {
+        "id": "FSIPjvHhJKmK"
+      }
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "R",
+      "language": "R",
+      "name": "ir"
+    },
+    "language_info": {
+      "codemirror_mode": "r",
+      "file_extension": ".r",
+      "mimetype": "text/x-r-source",
+      "name": "R",
+      "pygments_lexer": "r",
+      "version": "3.6.1"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
